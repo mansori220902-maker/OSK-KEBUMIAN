@@ -1,0 +1,1388 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ExamFlow — Platform Ujian Digital</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0f11;
+    --surface: #18181c;
+    --surface2: #222228;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.14);
+    --text: #f0eee8;
+    --muted: #888880;
+    --accent: #d4a84b;
+    --accent2: #e8c97a;
+    --accent-bg: rgba(212,168,75,0.1);
+    --accent-border: rgba(212,168,75,0.3);
+    --green: #4ade80;
+    --green-bg: rgba(74,222,128,0.1);
+    --red: #f87171;
+    --red-bg: rgba(248,113,113,0.1);
+    --blue: #60a5fa;
+    --blue-bg: rgba(96,165,250,0.1);
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 15px;
+  }
+  h1, h2, h3 { font-family: 'DM Serif Display', serif; font-weight: 400; }
+
+  /* ─── SCREENS ─── */
+  .screen { display: none; min-height: 100vh; }
+  .screen.active { display: flex; }
+
+  /* ─── LANDING ─── */
+  #screen-landing {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(212,168,75,0.06) 0%, transparent 70%);
+    padding: 2rem;
+    text-align: center;
+    gap: 3rem;
+  }
+  .brand { display: flex; flex-direction: column; align-items: center; gap: 0.75rem; }
+  .brand-logo {
+    width: 64px; height: 64px;
+    border: 1px solid var(--accent-border);
+    border-radius: 16px;
+    background: var(--accent-bg);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px;
+  }
+  .brand h1 { font-size: clamp(2.5rem, 6vw, 4rem); color: var(--text); letter-spacing: -0.5px; }
+  .brand p { color: var(--muted); font-size: 1.05rem; max-width: 400px; }
+  .landing-cards {
+    display: flex; gap: 1.25rem; flex-wrap: wrap; justify-content: center; max-width: 620px;
+  }
+  .landing-card {
+    flex: 1; min-width: 240px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 2rem 1.75rem;
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.2s;
+    text-align: left;
+  }
+  .landing-card:hover { border-color: var(--accent-border); transform: translateY(-2px); }
+  .landing-card .card-icon { font-size: 2rem; margin-bottom: 1rem; }
+  .landing-card h3 { font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 1rem; margin-bottom: 0.4rem; }
+  .landing-card p { color: var(--muted); font-size: 0.875rem; line-height: 1.5; }
+  .landing-card.admin-card { border-color: rgba(212,168,75,0.2); }
+  .admin-badge {
+    display: inline-block;
+    background: var(--accent-bg);
+    color: var(--accent);
+    border: 1px solid var(--accent-border);
+    border-radius: 20px;
+    font-size: 0.75rem;
+    padding: 2px 10px;
+    margin-bottom: 1rem;
+  }
+
+  /* ─── ADMIN LOGIN ─── */
+  #screen-admin-login {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+  }
+  .auth-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 380px;
+  }
+  .auth-box h2 { margin-bottom: 0.4rem; font-size: 1.6rem; }
+  .auth-box .sub { color: var(--muted); font-size: 0.875rem; margin-bottom: 2rem; }
+  .form-group { margin-bottom: 1.25rem; }
+  label { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  input[type=text], input[type=password], input[type=number], textarea, select {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    padding: 0.65rem 0.85rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  input:focus, textarea:focus, select:focus { border-color: var(--accent-border); }
+  textarea { resize: vertical; min-height: 80px; }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+    padding: 0.65rem 1.4rem;
+    border-radius: var(--radius-sm);
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s;
+  }
+  .btn:hover { opacity: 0.88; }
+  .btn:active { transform: scale(0.98); }
+  .btn-primary { background: var(--accent); color: #1a1200; width: 100%; }
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
+  .btn-ghost:hover { border-color: var(--border2); color: var(--text); }
+  .btn-danger { background: var(--red-bg); border: 1px solid rgba(248,113,113,0.3); color: var(--red); }
+  .btn-success { background: var(--green-bg); border: 1px solid rgba(74,222,128,0.3); color: var(--green); }
+  .back-link {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    color: var(--muted); font-size: 0.85rem; cursor: pointer; margin-bottom: 1.5rem;
+    background: none; border: none; font-family: inherit;
+  }
+  .back-link:hover { color: var(--text); }
+  .error-msg { color: var(--red); font-size: 0.8rem; margin-top: 0.75rem; text-align: center; }
+
+  /* ─── ADMIN PANEL ─── */
+  #screen-admin {
+    flex-direction: column;
+    padding: 0;
+  }
+  .admin-header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 1rem 1.75rem;
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 10;
+  }
+  .admin-header h2 { font-size: 1.15rem; font-family: 'DM Sans', sans-serif; font-weight: 600; }
+  .header-badge {
+    background: var(--accent-bg); color: var(--accent);
+    border: 1px solid var(--accent-border);
+    border-radius: 20px; font-size: 0.75rem; padding: 3px 10px;
+  }
+  .admin-tabs {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex; gap: 0;
+    padding: 0 1.75rem;
+  }
+  .tab-btn {
+    background: none; border: none; color: var(--muted);
+    font-family: 'DM Sans', sans-serif; font-size: 0.88rem; font-weight: 500;
+    padding: 0.85rem 1.2rem;
+    cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .tab-btn.active { color: var(--accent); border-color: var(--accent); }
+  .tab-btn:hover:not(.active) { color: var(--text); }
+  .admin-body { flex: 1; padding: 2rem 1.75rem; max-width: 900px; width: 100%; margin: 0 auto; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* Questions tab */
+  .section-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 1.5rem;
+  }
+  .section-head h3 { font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 600; }
+  .add-question-form {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .form-row { display: flex; gap: 1rem; }
+  .form-row .form-group { flex: 1; }
+  .question-type-toggle {
+    display: flex; gap: 0.5rem; margin-bottom: 1rem;
+  }
+  .type-btn {
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--muted); border-radius: var(--radius-sm);
+    padding: 0.4rem 0.9rem; font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem; font-weight: 500; cursor: pointer;
+    transition: all 0.15s;
+  }
+  .type-btn.active { background: var(--accent-bg); border-color: var(--accent-border); color: var(--accent); }
+  .upload-zone {
+    border: 1.5px dashed var(--border);
+    border-radius: var(--radius-sm);
+    padding: 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    position: relative;
+  }
+  .upload-zone:hover { border-color: var(--accent-border); }
+  .upload-zone input[type=file] {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%;
+  }
+  .upload-zone p { color: var(--muted); font-size: 0.85rem; }
+  .upload-zone .upload-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+  .image-preview {
+    max-width: 100%; max-height: 200px;
+    border-radius: var(--radius-sm); margin-top: 0.75rem;
+    display: none;
+  }
+  .options-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem;
+  }
+  .option-input-wrap {
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .option-letter {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--surface2); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.78rem; font-weight: 600; color: var(--muted); flex-shrink: 0;
+  }
+  .option-input-wrap.correct .option-letter { background: var(--green-bg); border-color: rgba(74,222,128,0.4); color: var(--green); }
+  .option-input-wrap.correct input { border-color: rgba(74,222,128,0.3); }
+  .correct-answer-select { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .ans-chip {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--surface2); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.82rem; font-weight: 600; color: var(--muted);
+    cursor: pointer; transition: all 0.15s;
+  }
+  .ans-chip.selected { background: var(--green-bg); border-color: rgba(74,222,128,0.4); color: var(--green); }
+  .question-list { display: flex; flex-direction: column; gap: 0.75rem; }
+  .question-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem 1.5rem;
+    display: flex; align-items: flex-start; gap: 1rem;
+  }
+  .q-num {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--accent-bg); border: 1px solid var(--accent-border);
+    color: var(--accent); font-size: 0.82rem; font-weight: 600;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .q-body { flex: 1; min-width: 0; }
+  .q-body .q-text { font-size: 0.9rem; line-height: 1.5; margin-bottom: 0.5rem; word-break: break-word; }
+  .q-body img { max-width: 200px; max-height: 120px; border-radius: 6px; margin-bottom: 0.5rem; display: block; }
+  .q-meta { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+  .badge {
+    font-size: 0.72rem; padding: 2px 8px; border-radius: 20px;
+    background: var(--surface2); color: var(--muted); border: 1px solid var(--border);
+  }
+  .badge.score { background: var(--accent-bg); color: var(--accent); border-color: var(--accent-border); }
+  .badge.answer { background: var(--green-bg); color: var(--green); border-color: rgba(74,222,128,0.3); }
+  .q-actions { display: flex; gap: 0.5rem; flex-shrink: 0; }
+  .icon-btn {
+    width: 32px; height: 32px; border-radius: var(--radius-sm);
+    border: 1px solid var(--border); background: transparent;
+    color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center;
+    font-size: 0.9rem; transition: all 0.15s;
+  }
+  .icon-btn:hover { color: var(--red); border-color: rgba(248,113,113,0.4); background: var(--red-bg); }
+  .empty-state {
+    text-align: center; padding: 3rem; color: var(--muted);
+  }
+  .empty-state .big-icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.5; }
+
+  /* Settings tab */
+  .settings-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.25rem;
+  }
+  .settings-card h4 {
+    font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 600;
+    margin-bottom: 1rem; color: var(--text);
+  }
+  .toggle-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.75rem 0; border-bottom: 1px solid var(--border);
+  }
+  .toggle-row:last-child { border-bottom: none; }
+  .toggle-row .label { font-size: 0.88rem; }
+  .toggle-row .desc { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+  .toggle {
+    width: 44px; height: 24px; border-radius: 12px;
+    background: var(--surface2); border: 1px solid var(--border);
+    position: relative; cursor: pointer; transition: background 0.2s;
+    flex-shrink: 0;
+  }
+  .toggle.on { background: var(--accent); border-color: var(--accent); }
+  .toggle-knob {
+    position: absolute; top: 3px; left: 3px;
+    width: 16px; height: 16px; border-radius: 50%; background: var(--muted);
+    transition: left 0.2s, background 0.2s;
+  }
+  .toggle.on .toggle-knob { left: 23px; background: #1a1200; }
+
+  /* Monitor tab */
+  .monitor-stats {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin-bottom: 2rem;
+  }
+  .stat-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 1.25rem;
+  }
+  .stat-card .stat-label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+  .stat-card .stat-value { font-size: 1.8rem; font-family: 'DM Serif Display', serif; color: var(--text); }
+  .stat-card .stat-value.green { color: var(--green); }
+  .stat-card .stat-value.amber { color: var(--accent); }
+  .participants-table {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden;
+  }
+  .table-head {
+    display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+    padding: 0.75rem 1.25rem;
+    background: var(--surface2); border-bottom: 1px solid var(--border);
+    font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em;
+  }
+  .table-row {
+    display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.88rem; align-items: center;
+    transition: background 0.1s;
+  }
+  .table-row:last-child { border-bottom: none; }
+  .table-row:hover { background: rgba(255,255,255,0.02); }
+  .status-dot {
+    display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+    margin-right: 0.5rem;
+  }
+  .dot-active { background: var(--green); box-shadow: 0 0 6px var(--green); }
+  .dot-done { background: var(--accent); }
+  .dot-waiting { background: var(--muted); }
+  .score-bar-wrap { display: flex; align-items: center; gap: 0.75rem; }
+  .score-bar {
+    flex: 1; height: 6px; background: var(--surface2); border-radius: 3px; overflow: hidden;
+  }
+  .score-bar-fill { height: 100%; border-radius: 3px; background: var(--accent); transition: width 0.5s; }
+  .score-pct { font-size: 0.8rem; color: var(--accent); font-weight: 500; min-width: 36px; }
+
+  /* ─── STUDENT NAME ENTRY ─── */
+  #screen-student-login {
+    flex-direction: column; align-items: center; justify-content: center; padding: 2rem;
+    background: radial-gradient(ellipse 60% 40% at 50% 0%, rgba(212,168,75,0.04) 0%, transparent 70%);
+  }
+  .exam-info-box {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 1.25rem 1.5rem; margin-bottom: 2rem; max-width: 380px; width: 100%;
+  }
+  .exam-info-box h3 { font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 0.95rem; margin-bottom: 0.75rem; }
+  .info-row { display: flex; justify-content: space-between; font-size: 0.82rem; padding: 0.4rem 0; border-bottom: 1px solid var(--border); }
+  .info-row:last-child { border-bottom: none; }
+  .info-row .info-label { color: var(--muted); }
+  .info-row .info-val { font-weight: 500; }
+
+  /* ─── EXAM SCREEN ─── */
+  #screen-exam {
+    flex-direction: column;
+  }
+  .exam-header {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 0.9rem 1.75rem;
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 10;
+  }
+  .exam-header .student-name { font-weight: 500; font-size: 0.9rem; }
+  .exam-header .student-name span { color: var(--muted); font-weight: 400; }
+  .exam-progress-bar {
+    position: absolute; bottom: 0; left: 0; height: 2px;
+    background: var(--accent); transition: width 0.4s;
+  }
+  .exam-timer {
+    display: flex; align-items: center; gap: 0.4rem;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 0.3rem 0.75rem;
+    font-size: 0.85rem; font-weight: 500; font-variant-numeric: tabular-nums;
+  }
+  .exam-timer.warning { color: var(--red); border-color: rgba(248,113,113,0.3); }
+  .exam-body {
+    flex: 1; padding: 2rem 1.75rem; max-width: 780px; width: 100%; margin: 0 auto;
+  }
+  .exam-nav {
+    display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 2rem;
+  }
+  .nav-dot {
+    width: 36px; height: 36px; border-radius: var(--radius-sm);
+    border: 1px solid var(--border); background: var(--surface);
+    color: var(--muted); font-size: 0.78rem; font-weight: 600;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .nav-dot.current { border-color: var(--accent); color: var(--accent); background: var(--accent-bg); }
+  .nav-dot.answered { border-color: rgba(74,222,128,0.4); color: var(--green); background: var(--green-bg); }
+  .question-display {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 2rem; margin-bottom: 1.5rem;
+  }
+  .q-header {
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem;
+  }
+  .q-header .q-label {
+    font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em;
+  }
+  .q-header .score-badge {
+    background: var(--accent-bg); color: var(--accent); border: 1px solid var(--accent-border);
+    border-radius: 20px; font-size: 0.75rem; padding: 3px 10px;
+  }
+  .q-content { font-size: 1rem; line-height: 1.7; margin-bottom: 1.5rem; }
+  .q-content img { max-width: 100%; border-radius: var(--radius-sm); margin-top: 0.75rem; }
+  .answer-options { display: flex; flex-direction: column; gap: 0.6rem; }
+  .answer-option {
+    display: flex; align-items: center; gap: 0.85rem;
+    padding: 0.85rem 1rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    cursor: pointer; transition: all 0.15s;
+  }
+  .answer-option:hover { border-color: var(--border2); background: rgba(255,255,255,0.04); }
+  .answer-option.selected { border-color: var(--accent-border); background: var(--accent-bg); }
+  .answer-option.correct { border-color: rgba(74,222,128,0.5); background: var(--green-bg); }
+  .answer-option.wrong { border-color: rgba(248,113,113,0.5); background: var(--red-bg); }
+  .opt-letter {
+    width: 30px; height: 30px; border-radius: 50%;
+    border: 1px solid var(--border); background: var(--surface);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.8rem; font-weight: 600; color: var(--muted); flex-shrink: 0;
+    transition: all 0.15s;
+  }
+  .answer-option.selected .opt-letter { background: var(--accent); border-color: var(--accent); color: #1a1200; }
+  .opt-text { font-size: 0.9rem; }
+  .essay-answer { width: 100%; }
+  .exam-footer {
+    display: flex; justify-content: space-between; align-items: center; gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .exam-footer-nav { display: flex; gap: 0.5rem; }
+
+  /* ─── RESULT SCREEN ─── */
+  #screen-result {
+    flex-direction: column; align-items: center; justify-content: center;
+    padding: 2rem; text-align: center;
+    background: radial-gradient(ellipse 60% 40% at 50% 0%, rgba(212,168,75,0.05) 0%, transparent 70%);
+  }
+  .result-icon { font-size: 4rem; margin-bottom: 1rem; }
+  .result-message { color: var(--muted); font-size: 1rem; max-width: 400px; margin: 0 auto 2rem; line-height: 1.6; }
+
+  /* Utils */
+  .flex-center { display: flex; align-items: center; gap: 0.5rem; }
+  .gap-sm { gap: 0.5rem; }
+  .mt1 { margin-top: 1rem; }
+  .mt2 { margin-top: 2rem; }
+  .divider { height: 1px; background: var(--border); margin: 1.5rem 0; }
+  .text-muted { color: var(--muted); }
+  .text-sm { font-size: 0.82rem; }
+  .refresh-note { font-size: 0.75rem; color: var(--muted); text-align: center; margin-top: 0.75rem; }
+
+  @media (max-width: 600px) {
+    .table-head, .table-row { grid-template-columns: 2fr 1fr 1fr; }
+    .table-head span:nth-child(4), .table-head span:nth-child(5),
+    .table-row span:nth-child(4), .table-row span:nth-child(5) { display: none; }
+    .form-row { flex-direction: column; }
+    .options-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════ LANDING ══════════════ -->
+<div id="screen-landing" class="screen active">
+  <div class="brand">
+    <div class="brand-logo">📋</div>
+    <h1>ExamFlow</h1>
+    <p>Platform ujian digital yang mudah digunakan untuk pengajar dan peserta</p>
+  </div>
+  <div class="landing-cards">
+    <div class="landing-card admin-card" onclick="showScreen('admin-login')">
+      <div class="admin-badge">🔐 Admin</div>
+      <div class="card-icon">🎛️</div>
+      <h3>Panel Pengajar</h3>
+      <p>Kelola soal, atur skor, dan pantau peserta secara real-time</p>
+    </div>
+    <div class="landing-card" onclick="showScreen('student-login')">
+      <div class="card-icon">✏️</div>
+      <h3>Ikuti Ujian</h3>
+      <p>Masukkan nama dan mulai kerjakan soal ujian yang tersedia</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ ADMIN LOGIN ══════════════ -->
+<div id="screen-admin-login" class="screen">
+  <div>
+    <button class="back-link" onclick="showScreen('landing')">← Kembali</button>
+    <div class="auth-box">
+      <h2>Masuk sebagai Admin</h2>
+      <p class="sub">Masukkan password untuk mengakses panel pengajar</p>
+      <div class="form-group">
+        <label>Password Admin</label>
+        <input type="password" id="admin-password" placeholder="Masukkan password..." onkeydown="if(event.key==='Enter')adminLogin()">
+      </div>
+      <button class="btn btn-primary" onclick="adminLogin()">Masuk ke Panel →</button>
+      <p class="error-msg" id="admin-login-error"></p>
+      <div class="divider"></div>
+      <p class="text-sm text-muted" style="text-align:center">Password default: <code style="background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--accent)">admin123</code></p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ ADMIN PANEL ══════════════ -->
+<div id="screen-admin" class="screen">
+  <div class="admin-header">
+    <div class="flex-center">
+      <span class="header-badge">👑 Admin</span>
+      <h2 id="exam-title-display">Ujian Belum Diberi Judul</h2>
+    </div>
+    <div class="flex-center">
+      <div id="exam-status-badge" class="badge" style="font-size:0.78rem">⏸ Belum Aktif</div>
+      <button class="btn btn-ghost" onclick="showScreen('landing')" style="margin-left:0.5rem">Keluar</button>
+    </div>
+  </div>
+
+  <div class="admin-tabs">
+    <button class="tab-btn active" data-tab="questions" onclick="switchTab('questions')">📝 Soal</button>
+    <button class="tab-btn" data-tab="settings" onclick="switchTab('settings')">⚙️ Pengaturan</button>
+    <button class="tab-btn" data-tab="monitor" onclick="switchTab('monitor')">📊 Monitor</button>
+  </div>
+
+  <div class="admin-body">
+
+    <!-- TAB: SOAL -->
+    <div id="tab-questions" class="tab-panel active">
+      <div class="add-question-form">
+        <div class="section-head">
+          <h3>Tambah Soal Baru</h3>
+        </div>
+        <div class="question-type-toggle">
+          <button class="type-btn active" data-type="multiple" onclick="setQType('multiple')">📋 Pilihan Ganda</button>
+          <button class="type-btn" data-type="essay" onclick="setQType('essay')">📝 Essay</button>
+          <button class="type-btn" data-type="truefalse" onclick="setQType('truefalse')">✓✗ Benar/Salah</button>
+        </div>
+
+        <!-- Text or Image toggle -->
+        <div class="question-type-toggle">
+          <button class="type-btn active" data-input="text" onclick="setInputType('text')">⌨️ Ketik Soal</button>
+          <button class="type-btn" data-input="image" onclick="setInputType('image')">🖼️ Upload Gambar</button>
+        </div>
+
+        <div id="text-input-area">
+          <div class="form-group">
+            <label>Pertanyaan</label>
+            <textarea id="q-text" placeholder="Tulis pertanyaan di sini..."></textarea>
+          </div>
+        </div>
+        <div id="image-input-area" style="display:none">
+          <div class="form-group">
+            <label>Gambar Soal</label>
+            <div class="upload-zone" id="upload-zone">
+              <input type="file" accept="image/*" onchange="handleImageUpload(event)">
+              <div class="upload-icon">🖼️</div>
+              <p>Klik atau drag gambar soal ke sini</p>
+              <p style="font-size:0.75rem;margin-top:4px">JPG, PNG, GIF didukung</p>
+              <img id="image-preview" class="image-preview">
+            </div>
+          </div>
+        </div>
+
+        <!-- Multiple choice options -->
+        <div id="mc-options">
+          <div class="form-group">
+            <label>Pilihan Jawaban</label>
+            <div class="options-grid">
+              <div class="option-input-wrap" id="opt-wrap-A">
+                <div class="option-letter">A</div>
+                <input type="text" id="opt-A" placeholder="Pilihan A">
+              </div>
+              <div class="option-input-wrap" id="opt-wrap-B">
+                <div class="option-letter">B</div>
+                <input type="text" id="opt-B" placeholder="Pilihan B">
+              </div>
+              <div class="option-input-wrap" id="opt-wrap-C">
+                <div class="option-letter">C</div>
+                <input type="text" id="opt-C" placeholder="Pilihan C">
+              </div>
+              <div class="option-input-wrap" id="opt-wrap-D">
+                <div class="option-letter">D</div>
+                <input type="text" id="opt-D" placeholder="Pilihan D">
+              </div>
+              <div class="option-input-wrap" id="opt-wrap-E" style="grid-column: 1 / -1">
+                <div class="option-letter">E</div>
+                <input type="text" id="opt-E" placeholder="Pilihan E (opsional)">
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Jawaban Benar</label>
+            <div class="correct-answer-select">
+              <div class="ans-chip" data-ans="A" onclick="selectAnswer('A')">A</div>
+              <div class="ans-chip" data-ans="B" onclick="selectAnswer('B')">B</div>
+              <div class="ans-chip" data-ans="C" onclick="selectAnswer('C')">C</div>
+              <div class="ans-chip" data-ans="D" onclick="selectAnswer('D')">D</div>
+              <div class="ans-chip" data-ans="E" onclick="selectAnswer('E')">E</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- True/False -->
+        <div id="tf-options" style="display:none">
+          <div class="form-group">
+            <label>Jawaban Benar</label>
+            <div class="correct-answer-select">
+              <div class="ans-chip" data-ans="Benar" onclick="selectAnswer('Benar')">✓ Benar</div>
+              <div class="ans-chip" data-ans="Salah" onclick="selectAnswer('Salah')">✗ Salah</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Poin / Skor</label>
+            <input type="number" id="q-score" min="1" max="100" value="10" style="width:120px">
+          </div>
+          <div class="form-group" style="display:flex;align-items:flex-end">
+            <button class="btn btn-primary" onclick="addQuestion()">+ Tambah Soal</button>
+          </div>
+        </div>
+        <p class="error-msg" id="q-error"></p>
+      </div>
+
+      <div class="section-head">
+        <h3>Daftar Soal (<span id="q-count">0</span>)</h3>
+        <span class="text-sm text-muted">Total: <span id="total-score">0</span> poin</span>
+      </div>
+      <div id="question-list" class="question-list">
+        <div class="empty-state">
+          <div class="big-icon">📭</div>
+          <p>Belum ada soal. Tambahkan soal pertama di atas.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: PENGATURAN -->
+    <div id="tab-settings" class="tab-panel">
+      <div class="settings-card">
+        <h4>📋 Informasi Ujian</h4>
+        <div class="form-group">
+          <label>Judul Ujian</label>
+          <input type="text" id="exam-title" placeholder="Contoh: Ujian Tengah Semester Matematika" oninput="updateTitle()">
+        </div>
+        <div class="form-group">
+          <label>Deskripsi / Petunjuk</label>
+          <textarea id="exam-desc" placeholder="Petunjuk pengerjaan ujian..." style="min-height:100px"></textarea>
+        </div>
+      </div>
+
+      <div class="settings-card">
+        <h4>⏱️ Waktu & Akses</h4>
+        <div class="form-group">
+          <label>Durasi Ujian (menit, 0 = tanpa batas)</label>
+          <input type="number" id="exam-duration" min="0" value="0" style="width:160px">
+        </div>
+        <div class="toggle-row">
+          <div>
+            <div class="label">Aktifkan Ujian</div>
+            <div class="desc">Peserta bisa mulai mengerjakan ujian</div>
+          </div>
+          <div class="toggle" id="toggle-active" onclick="toggleExam()">
+            <div class="toggle-knob"></div>
+          </div>
+        </div>
+        <div class="toggle-row">
+          <div>
+            <div class="label">Acak Urutan Soal</div>
+            <div class="desc">Setiap peserta mendapat urutan soal yang berbeda</div>
+          </div>
+          <div class="toggle" id="toggle-shuffle" onclick="toggleShuffle()">
+            <div class="toggle-knob"></div>
+          </div>
+        </div>
+        <div class="toggle-row">
+          <div>
+            <div class="label">Tampilkan Hasil ke Peserta</div>
+            <div class="desc">Peserta bisa melihat jawaban benar setelah selesai</div>
+          </div>
+          <div class="toggle" id="toggle-show-result" onclick="toggleShowResult()">
+            <div class="toggle-knob"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-card">
+        <h4>🔐 Keamanan</h4>
+        <div class="form-group">
+          <label>Ubah Password Admin</label>
+          <div style="display:flex;gap:0.5rem">
+            <input type="password" id="new-password" placeholder="Password baru..." style="flex:1">
+            <button class="btn btn-ghost" onclick="changePassword()">Simpan</button>
+          </div>
+          <p class="error-msg" id="pw-msg" style="text-align:left"></p>
+        </div>
+      </div>
+
+      <button class="btn btn-primary" style="width:auto" onclick="saveSettings()">💾 Simpan Pengaturan</button>
+      <p id="settings-saved" class="text-sm text-muted mt1" style="display:none">✓ Tersimpan</p>
+    </div>
+
+    <!-- TAB: MONITOR -->
+    <div id="tab-monitor" class="tab-panel">
+      <div class="monitor-stats">
+        <div class="stat-card">
+          <div class="stat-label">Peserta</div>
+          <div class="stat-value" id="stat-total">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Sedang Mengerjakan</div>
+          <div class="stat-value green" id="stat-active">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Selesai</div>
+          <div class="stat-value amber" id="stat-done">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Rata-rata Skor</div>
+          <div class="stat-value" id="stat-avg">—</div>
+        </div>
+      </div>
+
+      <div class="participants-table">
+        <div class="table-head">
+          <span>Nama Peserta</span>
+          <span>Status</span>
+          <span>Progress</span>
+          <span>Skor</span>
+          <span>%</span>
+        </div>
+        <div id="participants-list">
+          <div class="empty-state" style="padding:2rem">
+            <p class="text-muted text-sm">Belum ada peserta yang bergabung.</p>
+          </div>
+        </div>
+      </div>
+      <p class="refresh-note">🔄 Diperbarui otomatis setiap 5 detik</p>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════ STUDENT LOGIN ══════════════ -->
+<div id="screen-student-login" class="screen">
+  <div>
+    <button class="back-link" onclick="showScreen('landing')">← Kembali</button>
+    <div class="auth-box" style="max-width:420px">
+      <h2>Ikuti Ujian</h2>
+      <p class="sub">Masukkan nama lengkap untuk memulai</p>
+
+      <div id="exam-preview-info" class="exam-info-box" style="display:none">
+        <h3 id="preview-title">—</h3>
+        <div class="info-row"><span class="info-label">Jumlah Soal</span><span class="info-val" id="preview-count">—</span></div>
+        <div class="info-row"><span class="info-label">Total Poin</span><span class="info-val" id="preview-total">—</span></div>
+        <div class="info-row"><span class="info-label">Durasi</span><span class="info-val" id="preview-duration">—</span></div>
+        <div id="exam-description" style="margin-top:0.75rem;font-size:0.82rem;color:var(--muted);line-height:1.6"></div>
+      </div>
+
+      <div id="exam-not-active" style="display:none;text-align:center;padding:1.5rem 0">
+        <div style="font-size:2.5rem;margin-bottom:0.75rem">⏸</div>
+        <p style="color:var(--muted);font-size:0.9rem">Ujian belum dibuka oleh pengajar. Silakan tunggu.</p>
+      </div>
+
+      <div id="student-form">
+        <div class="form-group">
+          <label>Nama Lengkap</label>
+          <input type="text" id="student-name" placeholder="Masukkan nama lengkap..." onkeydown="if(event.key==='Enter')startExam()">
+        </div>
+        <button class="btn btn-primary" onclick="startExam()">Mulai Ujian →</button>
+        <p class="error-msg" id="student-error"></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ EXAM SCREEN ══════════════ -->
+<div id="screen-exam" class="screen">
+  <div class="exam-header" style="position:relative">
+    <div>
+      <div class="student-name"><span>Peserta: </span><strong id="exam-student-name">—</strong></div>
+      <div style="font-size:0.78rem;color:var(--muted);margin-top:2px" id="exam-title-student">—</div>
+    </div>
+    <div class="flex-center">
+      <div class="exam-timer" id="exam-timer" style="display:none">⏱ <span id="timer-display">00:00</span></div>
+      <button class="btn btn-success" onclick="confirmSubmit()" style="margin-left:0.5rem">Selesai ✓</button>
+    </div>
+    <div class="exam-progress-bar" id="exam-progress-bar" style="width:0%"></div>
+  </div>
+
+  <div class="exam-body">
+    <div class="exam-nav" id="exam-nav"></div>
+    <div class="question-display" id="question-display"></div>
+    <div class="exam-footer">
+      <div class="exam-footer-nav">
+        <button class="btn btn-ghost" id="btn-prev" onclick="prevQuestion()">← Sebelumnya</button>
+        <button class="btn btn-ghost" id="btn-next" onclick="nextQuestion()">Selanjutnya →</button>
+      </div>
+      <span class="text-sm text-muted" id="q-position">Soal 1 dari 1</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ RESULT SCREEN ══════════════ -->
+<div id="screen-result" class="screen">
+  <div>
+    <div class="result-icon" id="result-icon">🎉</div>
+    <h1 style="font-size:clamp(2rem,5vw,3rem);margin-bottom:0.5rem">Ujian Selesai!</h1>
+    <p class="result-message" id="result-message">Terima kasih telah mengerjakan ujian.</p>
+    <div id="result-score-display" style="display:none;text-align:center;margin-bottom:2rem">
+      <div style="font-size:3.5rem;font-family:'DM Serif Display',serif;color:var(--accent)" id="result-score-num">—</div>
+      <div style="font-size:0.85rem;color:var(--muted);margin-top:0.25rem" id="result-score-sub">—</div>
+    </div>
+    <button class="btn btn-ghost" onclick="showScreen('landing')">Kembali ke Beranda</button>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+//  localStorage KEYS
+// ══════════════════════════════════════════
+const LS = {
+  settings: 'examflow_settings',
+  questions: 'examflow_questions',
+  participants: 'examflow_participants',
+  password: 'examflow_password',
+};
+
+// ── STORAGE HELPERS ──
+function lsGet(key, fallback) {
+  try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; } catch(e) { return fallback; }
+}
+function lsSet(key, val) {
+  try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) {}
+}
+
+// ── SESSION STATE (not persisted) ──
+const SESSION = {
+  currentStudent: null,
+  studentQuestions: [],
+  studentAnswers: {},
+  timerInterval: null,
+  monitorInterval: null,
+  currentQ: 0,
+  selectedAnswer: null,
+  uploadedImage: null,
+  currentQType: 'multiple',
+  currentInputType: 'text',
+};
+
+// ── DEFAULTS ──
+function defaultSettings() {
+  return { title: '', description: '', duration: 0, active: false, shuffle: false, showResult: false };
+}
+
+// ── SCREEN ROUTER ──
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  if (name === 'student-login') refreshStudentLogin();
+  if (name === 'admin') { updateTitle(); renderQuestions(); startMonitor(); loadSettingsUI(); }
+}
+
+// ── ADMIN LOGIN ──
+function adminLogin() {
+  const pw = document.getElementById('admin-password').value;
+  const stored = lsGet(LS.password, 'admin123');
+  if (pw === stored) {
+    document.getElementById('admin-password').value = '';
+    document.getElementById('admin-login-error').textContent = '';
+    showScreen('admin');
+    switchTab('questions');
+  } else {
+    document.getElementById('admin-login-error').textContent = 'Password salah. Coba lagi.';
+  }
+}
+
+// ── TABS ──
+function switchTab(name) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  if (name === 'monitor') startMonitor();
+}
+
+// ── QUESTION TYPE ──
+function setQType(type) {
+  SESSION.currentQType = type;
+  document.querySelectorAll('[data-type]').forEach(b => b.classList.toggle('active', b.dataset.type === type));
+  document.getElementById('mc-options').style.display = type === 'multiple' ? '' : 'none';
+  document.getElementById('tf-options').style.display = type === 'truefalse' ? '' : 'none';
+  SESSION.selectedAnswer = null;
+  document.querySelectorAll('.ans-chip').forEach(c => c.classList.remove('selected'));
+}
+
+function setInputType(type) {
+  SESSION.currentInputType = type;
+  document.querySelectorAll('[data-input]').forEach(b => b.classList.toggle('active', b.dataset.input === type));
+  document.getElementById('text-input-area').style.display = type === 'text' ? '' : 'none';
+  document.getElementById('image-input-area').style.display = type === 'image' ? '' : 'none';
+}
+
+function handleImageUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    SESSION.uploadedImage = e.target.result;
+    const preview = document.getElementById('image-preview');
+    preview.src = e.target.result;
+    preview.style.display = 'block';
+    document.querySelector('#upload-zone .upload-icon').style.display = 'none';
+    document.querySelectorAll('#upload-zone p').forEach(p => p.style.display = 'none');
+  };
+  reader.readAsDataURL(file);
+}
+
+function selectAnswer(ans) {
+  SESSION.selectedAnswer = ans;
+  document.querySelectorAll('.ans-chip').forEach(c => c.classList.toggle('selected', c.dataset.ans === ans));
+}
+
+// ── ADD QUESTION ──
+function addQuestion() {
+  const err = document.getElementById('q-error');
+  err.textContent = '';
+  let questionText = '', questionImage = null;
+
+  if (SESSION.currentInputType === 'text') {
+    questionText = document.getElementById('q-text').value.trim();
+    if (!questionText) { err.textContent = 'Pertanyaan tidak boleh kosong.'; return; }
+  } else {
+    if (!SESSION.uploadedImage) { err.textContent = 'Pilih gambar soal terlebih dahulu.'; return; }
+    questionImage = SESSION.uploadedImage;
+  }
+
+  const score = parseInt(document.getElementById('q-score').value) || 10;
+  let options = [], correctAnswer = SESSION.selectedAnswer;
+
+  if (SESSION.currentQType === 'multiple') {
+    const a = document.getElementById('opt-A').value.trim();
+    const b = document.getElementById('opt-B').value.trim();
+    const c = document.getElementById('opt-C').value.trim();
+    const d = document.getElementById('opt-D').value.trim();
+    const e = document.getElementById('opt-E').value.trim();
+    if (!a || !b) { err.textContent = 'Minimal isi pilihan A dan B.'; return; }
+    if (!correctAnswer) { err.textContent = 'Pilih jawaban yang benar.'; return; }
+    options = [
+      { letter: 'A', text: a }, { letter: 'B', text: b },
+      ...(c ? [{ letter: 'C', text: c }] : []),
+      ...(d ? [{ letter: 'D', text: d }] : []),
+      ...(e ? [{ letter: 'E', text: e }] : [])
+    ];
+  } else if (SESSION.currentQType === 'truefalse') {
+    options = [{ letter: 'Benar', text: '✓ Benar' }, { letter: 'Salah', text: '✗ Salah' }];
+    if (!correctAnswer) { err.textContent = 'Pilih jawaban yang benar.'; return; }
+  }
+
+  const questions = lsGet(LS.questions, []);
+  questions.push({ id: Date.now(), type: SESSION.currentQType, text: questionText, image: questionImage, options, correct: correctAnswer, score });
+  lsSet(LS.questions, questions);
+  renderQuestions();
+  resetQuestionForm();
+}
+
+function resetQuestionForm() {
+  document.getElementById('q-text').value = '';
+  document.getElementById('q-score').value = '10';
+  ['opt-A','opt-B','opt-C','opt-D','opt-E'].forEach(id => document.getElementById(id).value = '');
+  SESSION.selectedAnswer = null;
+  SESSION.uploadedImage = null;
+  document.querySelectorAll('.ans-chip').forEach(c => c.classList.remove('selected'));
+  const preview = document.getElementById('image-preview');
+  preview.style.display = 'none'; preview.src = '';
+  document.querySelector('#upload-zone .upload-icon').style.display = '';
+  document.querySelectorAll('#upload-zone p').forEach(p => p.style.display = '');
+  document.getElementById('q-error').textContent = '';
+}
+
+function deleteQuestion(id) {
+  const questions = lsGet(LS.questions, []).filter(q => q.id !== id);
+  lsSet(LS.questions, questions);
+  renderQuestions();
+}
+
+function renderQuestions() {
+  const questions = lsGet(LS.questions, []);
+  const list = document.getElementById('question-list');
+  const total = questions.reduce((s, q) => s + q.score, 0);
+  document.getElementById('q-count').textContent = questions.length;
+  document.getElementById('total-score').textContent = total;
+
+  if (questions.length === 0) {
+    list.innerHTML = `<div class="empty-state"><div class="big-icon">📭</div><p>Belum ada soal. Tambahkan soal pertama di atas.</p></div>`;
+    return;
+  }
+  list.innerHTML = questions.map((q, i) => `
+    <div class="question-card">
+      <div class="q-num">${i+1}</div>
+      <div class="q-body">
+        ${q.image ? `<img src="${q.image}" alt="Soal gambar">` : ''}
+        ${q.text ? `<div class="q-text">${escapeHtml(q.text)}</div>` : ''}
+        <div class="q-meta">
+          <span class="badge score">⭐ ${q.score} poin</span>
+          <span class="badge">${q.type === 'multiple' ? '📋 Pilihan Ganda' : q.type === 'essay' ? '📝 Essay' : '✓✗ Benar/Salah'}</span>
+          ${q.correct ? `<span class="badge answer">✓ ${q.correct}</span>` : ''}
+        </div>
+      </div>
+      <div class="q-actions">
+        <button class="icon-btn" onclick="deleteQuestion(${q.id})" title="Hapus">🗑</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── SETTINGS ──
+function loadSettingsUI() {
+  const s = lsGet(LS.settings, defaultSettings());
+  document.getElementById('exam-title').value = s.title || '';
+  document.getElementById('exam-desc').value = s.description || '';
+  document.getElementById('exam-duration').value = s.duration || 0;
+  document.getElementById('toggle-active').classList.toggle('on', !!s.active);
+  document.getElementById('toggle-shuffle').classList.toggle('on', !!s.shuffle);
+  document.getElementById('toggle-show-result').classList.toggle('on', !!s.showResult);
+  updateTitle();
+  updateExamStatusBadge();
+}
+
+function saveSettings() {
+  const s = lsGet(LS.settings, defaultSettings());
+  s.title = document.getElementById('exam-title').value;
+  s.description = document.getElementById('exam-desc').value;
+  s.duration = parseInt(document.getElementById('exam-duration').value) || 0;
+  lsSet(LS.settings, s);
+  updateTitle();
+  const saved = document.getElementById('settings-saved');
+  saved.style.display = 'block';
+  setTimeout(() => saved.style.display = 'none', 2000);
+}
+
+function updateTitle() {
+  const s = lsGet(LS.settings, defaultSettings());
+  document.getElementById('exam-title-display').textContent = s.title || 'Ujian Belum Diberi Judul';
+}
+
+function toggleExam() {
+  const s = lsGet(LS.settings, defaultSettings());
+  s.active = !s.active;
+  lsSet(LS.settings, s);
+  document.getElementById('toggle-active').classList.toggle('on', s.active);
+  updateExamStatusBadge();
+}
+function toggleShuffle() {
+  const s = lsGet(LS.settings, defaultSettings());
+  s.shuffle = !s.shuffle;
+  lsSet(LS.settings, s);
+  document.getElementById('toggle-shuffle').classList.toggle('on', s.shuffle);
+}
+function toggleShowResult() {
+  const s = lsGet(LS.settings, defaultSettings());
+  s.showResult = !s.showResult;
+  lsSet(LS.settings, s);
+  document.getElementById('toggle-show-result').classList.toggle('on', s.showResult);
+}
+function updateExamStatusBadge() {
+  const s = lsGet(LS.settings, defaultSettings());
+  const b = document.getElementById('exam-status-badge');
+  if (s.active) { b.textContent = '▶ Aktif'; b.style.color = 'var(--green)'; b.style.borderColor = 'rgba(74,222,128,0.3)'; b.style.background = 'var(--green-bg)'; }
+  else { b.textContent = '⏸ Belum Aktif'; b.style.color = ''; b.style.borderColor = ''; b.style.background = ''; }
+}
+
+function changePassword() {
+  const np = document.getElementById('new-password').value;
+  const msg = document.getElementById('pw-msg');
+  if (!np || np.length < 4) { msg.textContent = 'Password minimal 4 karakter.'; return; }
+  lsSet(LS.password, np);
+  document.getElementById('new-password').value = '';
+  msg.style.color = 'var(--green)'; msg.textContent = '✓ Password berhasil diubah.';
+  setTimeout(() => { msg.textContent = ''; msg.style.color = ''; }, 3000);
+}
+
+// ── MONITOR ──
+function startMonitor() {
+  if (SESSION.monitorInterval) clearInterval(SESSION.monitorInterval);
+  updateMonitor();
+  SESSION.monitorInterval = setInterval(updateMonitor, 3000);
+}
+
+function updateMonitor() {
+  const questions = lsGet(LS.questions, []);
+  const participants = lsGet(LS.participants, {});
+  const parts = Object.values(participants);
+  const total = parts.length;
+  const active = parts.filter(p => p.status === 'active').length;
+  const done = parts.filter(p => p.status === 'done').length;
+  const scores = parts.filter(p => p.status === 'done').map(p => p.score);
+  const maxScore = questions.reduce((s,q) => s + q.score, 0);
+  const avg = scores.length ? Math.round(scores.reduce((a,b)=>a+b,0)/scores.length) : null;
+
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-active').textContent = active;
+  document.getElementById('stat-done').textContent = done;
+  document.getElementById('stat-avg').textContent = avg !== null ? avg : '—';
+
+  const list = document.getElementById('participants-list');
+  if (total === 0) {
+    list.innerHTML = `<div class="empty-state" style="padding:2rem"><p class="text-muted text-sm">Belum ada peserta yang bergabung.</p></div>`;
+    return;
+  }
+  list.innerHTML = parts.map(p => {
+    const pct = maxScore > 0 ? Math.round((p.score / maxScore) * 100) : 0;
+    const progress = p.totalQ > 0 ? Math.round((p.answered / p.totalQ) * 100) : 0;
+    const dotClass = p.status === 'active' ? 'dot-active' : p.status === 'done' ? 'dot-done' : 'dot-waiting';
+    const statusText = p.status === 'active' ? 'Mengerjakan' : p.status === 'done' ? 'Selesai' : 'Menunggu';
+    return `
+    <div class="table-row">
+      <span style="font-weight:500">${escapeHtml(p.name)}</span>
+      <span><span class="status-dot ${dotClass}"></span>${statusText}</span>
+      <span>
+        <div class="score-bar-wrap">
+          <div class="score-bar"><div class="score-bar-fill" style="width:${progress}%"></div></div>
+          <span class="score-pct">${progress}%</span>
+        </div>
+      </span>
+      <span style="font-weight:500;color:var(--accent)">${p.status === 'done' ? p.score : '—'}</span>
+      <span style="color:var(--muted)">${p.status === 'done' ? pct+'%' : '—'}</span>
+    </div>`;
+  }).join('');
+}
+
+// ── STUDENT LOGIN ──
+function refreshStudentLogin() {
+  const s = lsGet(LS.settings, defaultSettings());
+  const questions = lsGet(LS.questions, []);
+  const active = s.active && questions.length > 0;
+  document.getElementById('student-form').style.display = active ? '' : 'none';
+  document.getElementById('exam-not-active').style.display = active ? 'none' : '';
+
+  if (active) {
+    const total = questions.reduce((sum, q) => sum + q.score, 0);
+    document.getElementById('exam-preview-info').style.display = '';
+    document.getElementById('preview-title').textContent = s.title || 'Ujian';
+    document.getElementById('preview-count').textContent = questions.length + ' soal';
+    document.getElementById('preview-total').textContent = total + ' poin';
+    document.getElementById('preview-duration').textContent = s.duration > 0 ? s.duration + ' menit' : 'Tanpa batas';
+    document.getElementById('exam-description').textContent = s.description || '';
+  } else {
+    document.getElementById('exam-preview-info').style.display = 'none';
+  }
+}
+
+function startExam() {
+  const name = document.getElementById('student-name').value.trim();
+  const err = document.getElementById('student-error');
+  const s = lsGet(LS.settings, defaultSettings());
+  const questions = lsGet(LS.questions, []);
+  if (!name) { err.textContent = 'Nama tidak boleh kosong.'; return; }
+  if (!s.active) { err.textContent = 'Ujian belum aktif.'; return; }
+  if (questions.length === 0) { err.textContent = 'Belum ada soal yang tersedia.'; return; }
+  err.textContent = '';
+
+  SESSION.currentStudent = name;
+  let qs = [...questions];
+  if (s.shuffle) qs = qs.sort(() => Math.random() - 0.5);
+  SESSION.studentQuestions = qs;
+  SESSION.studentAnswers = {};
+  SESSION.currentQ = 0;
+
+  // Save participant to localStorage so admin tab can see it
+  const participants = lsGet(LS.participants, {});
+  participants[name] = { name, status: 'active', score: 0, answered: 0, totalQ: qs.length, startTime: Date.now() };
+  lsSet(LS.participants, participants);
+
+  document.getElementById('exam-student-name').textContent = name;
+  document.getElementById('exam-title-student').textContent = s.title || 'Ujian';
+  showScreen('exam');
+  renderExam();
+
+  if (s.duration > 0) startTimer(s.duration * 60);
+  else document.getElementById('exam-timer').style.display = 'none';
+}
+
+// ── EXAM RENDERING ──
+function renderExam() { renderNav(); renderQuestion(); updateProgress(); }
+
+function renderNav() {
+  const nav = document.getElementById('exam-nav');
+  nav.innerHTML = SESSION.studentQuestions.map((q, i) => {
+    const answered = SESSION.studentAnswers[q.id] !== undefined;
+    const current = i === SESSION.currentQ;
+    return `<div class="nav-dot ${current?'current':''} ${answered&&!current?'answered':''}" onclick="goToQ(${i})">${i+1}</div>`;
+  }).join('');
+}
+
+function renderQuestion() {
+  const q = SESSION.studentQuestions[SESSION.currentQ];
+  const total = SESSION.studentQuestions.length;
+  const existingAnswer = SESSION.studentAnswers[q.id];
+
+  document.getElementById('q-position').textContent = `Soal ${SESSION.currentQ+1} dari ${total}`;
+  document.getElementById('btn-prev').disabled = SESSION.currentQ === 0;
+  document.getElementById('btn-next').disabled = SESSION.currentQ === total - 1;
+
+  let optionsHtml = '';
+  if (q.type === 'multiple' || q.type === 'truefalse') {
+    const opts = q.type === 'truefalse'
+      ? [{ letter: 'Benar', text: '✓ Benar' }, { letter: 'Salah', text: '✗ Salah' }]
+      : q.options;
+    optionsHtml = `<div class="answer-options">${opts.map(o => `
+      <div class="answer-option ${existingAnswer === o.letter ? 'selected' : ''}" onclick="selectStudentAnswer('${o.letter}')">
+        <div class="opt-letter">${o.letter.charAt(0)}</div>
+        <div class="opt-text">${escapeHtml(o.text)}</div>
+      </div>`).join('')}</div>`;
+  } else {
+    optionsHtml = `<textarea class="essay-answer" id="essay-input" rows="5" placeholder="Tulis jawaban essay di sini..."
+      onblur="saveEssay()">${existingAnswer || ''}</textarea>`;
+  }
+
+  document.getElementById('question-display').innerHTML = `
+    <div class="q-header">
+      <span class="q-label">Soal ${SESSION.currentQ + 1}</span>
+      <span class="score-badge">⭐ ${q.score} poin</span>
+    </div>
+    <div class="q-content">
+      ${q.image ? `<img src="${q.image}" alt="Gambar soal">` : ''}
+      ${q.text ? escapeHtml(q.text) : ''}
+    </div>
+    ${optionsHtml}
+  `;
+}
+
+function selectStudentAnswer(letter) {
+  const q = SESSION.studentQuestions[SESSION.currentQ];
+  SESSION.studentAnswers[q.id] = letter;
+  saveParticipantProgress();
+  renderNav();
+  renderQuestion();
+}
+
+function saveEssay() {
+  const q = SESSION.studentQuestions[SESSION.currentQ];
+  const val = document.getElementById('essay-input');
+  if (val) SESSION.studentAnswers[q.id] = val.value.trim() || undefined;
+  if (!SESSION.studentAnswers[q.id]) delete SESSION.studentAnswers[q.id];
+  saveParticipantProgress();
+  renderNav();
+}
+
+function saveParticipantProgress() {
+  if (!SESSION.currentStudent) return;
+  const participants = lsGet(LS.participants, {});
+  if (participants[SESSION.currentStudent]) {
+    participants[SESSION.currentStudent].answered = Object.keys(SESSION.studentAnswers).length;
+    lsSet(LS.participants, participants);
+  }
+}
+
+function updateProgress() {
+  const answered = Object.keys(SESSION.studentAnswers).length;
+  const total = SESSION.studentQuestions.length;
+  const pct = total > 0 ? (answered / total) * 100 : 0;
+  document.getElementById('exam-progress-bar').style.width = pct + '%';
+}
+
+function goToQ(i) {
+  if (SESSION.studentQuestions[SESSION.currentQ].type === 'essay') saveEssay();
+  SESSION.currentQ = i; renderExam();
+}
+function prevQuestion() {
+  if (SESSION.currentQ > 0) {
+    if (SESSION.studentQuestions[SESSION.currentQ].type === 'essay') saveEssay();
+    SESSION.currentQ--; renderExam();
+  }
+}
+function nextQuestion() {
+  if (SESSION.currentQ < SESSION.studentQuestions.length - 1) {
+    if (SESSION.studentQuestions[SESSION.currentQ].type === 'essay') saveEssay();
+    SESSION.currentQ++; renderExam();
+  }
+}
+
+// ── TIMER ──
+function startTimer(seconds) {
+  document.getElementById('exam-timer').style.display = 'flex';
+  let remaining = seconds;
+  SESSION.timerInterval = setInterval(() => {
+    remaining--;
+    const m = String(Math.floor(remaining / 60)).padStart(2, '0');
+    const s = String(remaining % 60).padStart(2, '0');
+    document.getElementById('timer-display').textContent = `${m}:${s}`;
+    if (remaining <= 60) document.getElementById('exam-timer').classList.add('warning');
+    if (remaining <= 0) { clearInterval(SESSION.timerInterval); submitExam(); }
+  }, 1000);
+}
+
+// ── SUBMIT ──
+function confirmSubmit() {
+  const answered = Object.keys(SESSION.studentAnswers).length;
+  const total = SESSION.studentQuestions.length;
+  const unanswered = total - answered;
+  const msg = unanswered > 0 ? `Masih ada ${unanswered} soal yang belum dijawab. Yakin ingin selesai?` : 'Yakin ingin mengumpulkan jawaban?';
+  if (confirm(msg)) submitExam();
+}
+
+function submitExam() {
+  if (SESSION.timerInterval) clearInterval(SESSION.timerInterval);
+  if (SESSION.studentQuestions[SESSION.currentQ]?.type === 'essay') saveEssay();
+
+  let score = 0;
+  SESSION.studentQuestions.forEach(q => {
+    const ans = SESSION.studentAnswers[q.id];
+    if (q.type !== 'essay' && ans === q.correct) score += q.score;
+  });
+
+  const maxScore = SESSION.studentQuestions.reduce((s, q) => s + q.score, 0);
+
+  // Save final result to localStorage
+  const participants = lsGet(LS.participants, {});
+  if (participants[SESSION.currentStudent]) {
+    participants[SESSION.currentStudent].status = 'done';
+    participants[SESSION.currentStudent].score = score;
+    participants[SESSION.currentStudent].answered = SESSION.studentQuestions.length;
+    lsSet(LS.participants, participants);
+  }
+
+  showScreen('result');
+  const pct = maxScore > 0 ? Math.round((score/maxScore)*100) : 0;
+  document.getElementById('result-icon').textContent = pct >= 80 ? '🏆' : pct >= 60 ? '🎉' : '📋';
+
+  const s = lsGet(LS.settings, defaultSettings());
+  if (s.showResult) {
+    document.getElementById('result-score-display').style.display = 'block';
+    document.getElementById('result-score-num').textContent = score;
+    document.getElementById('result-score-sub').textContent = `dari ${maxScore} poin (${pct}%)`;
+    document.getElementById('result-message').textContent = 'Berikut adalah hasil ujianmu. Terima kasih sudah mengerjakan!';
+  } else {
+    document.getElementById('result-score-display').style.display = 'none';
+    document.getElementById('result-message').textContent = 'Jawaban kamu sudah dikumpulkan. Hasil ujian akan diumumkan oleh pengajar.';
+  }
+}
+
+// ── UTILS ──
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+</script>
+</body>
+</html>
